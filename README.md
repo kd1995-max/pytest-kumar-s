@@ -250,3 +250,180 @@ To view fixture setup, run Pytest with `--setup-show`:
 ```bash
 pytest --setup-show
 ```
+
+## Advanced Testing Techniques
+
+### 1. Parameterized Tests
+
+Parameterized tests allow you to reuse the same test with different data inputs, which is great for data-driven testing.
+
+**Example**:
+```python
+import pytest
+
+@pytest.mark.parametrize("number, expected", [(2, 4), (3, 9), (4, 16)])
+def test_square(number, expected):
+    assert number ** 2 == expected
+```
+
+### 2. Fixtures
+
+Fixtures set up any required resources before a test and clean them up afterward. They make tests more modular and reusable.
+
+**Basic Fixture Example**:
+```python
+import pytest
+
+@pytest.fixture
+def sample_data():
+    return {"name": "Alice", "age": 30}
+
+def test_sample_data(sample_data):
+    assert sample_data["name"] == "Alice"
+    assert sample_data["age"] == 30
+```
+
+**Fixture with Teardown**:
+Using `yield` in a fixture allows you to specify teardown steps to be run after the test completes.
+```python
+@pytest.fixture
+def db_connection():
+    conn = "Database Connection Established"
+    yield conn
+    print("Closing Database Connection")
+
+def test_db(db_connection):
+    assert db_connection == "Database Connection Established"
+```
+
+### 3. Fixture Scope
+
+Fixture scope determines how often a fixture is run:
+- **Function**: Runs once per test.
+- **Class**: Runs once per test class.
+- **Module**: Runs once per module.
+- **Session**: Runs once per test session.
+
+**Example with Class Scope**:
+```python
+@pytest.fixture(scope="class")
+def setup_once():
+    return "Setup done once per class"
+
+class TestExample:
+    def test_first(self, setup_once):
+        assert setup_once == "Setup done once per class"
+        
+    def test_second(self, setup_once):
+        assert setup_once == "Setup done once per class"
+```
+
+### 4. Passing Configuration Files from Command Line
+
+Pytest allows you to specify a configuration file path via command-line options, which can be accessed within fixtures for customized test setups. 
+
+#### Step 1: Add Command-Line Option in `conftest.py`
+
+Define a command-line option to specify the configuration file path, allowing flexibility to use different files in various environments (e.g., dev, prod).
+
+```python
+# conftest.py
+import pytest
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--config", 
+        action="store", 
+        default="config.json", 
+        help="Path to the configuration file"
+    )
+```
+
+Here, the `--config` option lets you set a configuration file path, with a default of `config.json`.
+
+#### Step 2: Create a Fixture to Load Configurations
+
+Create a fixture that reads the specified configuration file. Here, we’ll use JSON format, but this could be adapted for other file types (e.g., YAML, INI).
+
+```python
+# conftest.py
+import pytest
+import json
+
+@pytest.fixture
+def config(pytestconfig):
+    config_path = pytestconfig.getoption("config")
+    with open(config_path, "r") as f:
+        config_data = json.load(f)
+    return config_data
+```
+
+This fixture:
+- Retrieves the config file path using `pytestconfig.getoption("config")`.
+- Opens and loads the JSON configuration as a dictionary.
+
+#### Step 3: Use the Configuration in Tests
+
+Now, any test that includes `config` as a parameter will receive the loaded configuration data.
+
+```python
+def test_api_url(config):
+    assert "api_url" in config
+    assert config["api_url"] == "https://example.com/api"
+```
+
+Run this test with:
+```bash
+pytest --config=config_prod.json
+```
+
+### 5. Customizing Test Runs with Command-Line Options
+
+You can customize test runs by passing arguments through the command line or configuring options in `pytest.ini`.
+
+**Example: Passing Arguments**:
+Define options in `conftest.py` using `pytest_addoption`:
+```python
+# conftest.py
+def pytest_addoption(parser):
+    parser.addoption("--env", action="store", default="dev")
+
+@pytest.fixture
+def env(pytestconfig):
+    return pytestconfig.getoption("env")
+
+def test_env(env):
+    assert env in ["dev", "prod", "qa"]
+```
+Run with:
+```bash
+pytest --env=prod
+```
+
+**Example: pytest.ini Configuration**:
+You can add default options in `pytest.ini`:
+```ini
+# pytest.ini
+[pytest]
+addopts = --maxfail=3 -rf
+```
+
+This configuration limits the test run to three failures and provides failure reports.
+
+### 6. Using External Data with `@pytest.mark.parametrize`
+
+Load data from a file (e.g., JSON, CSV) to parameterize tests dynamically.
+
+**Example with JSON**:
+```python
+import pytest
+import json
+
+def get_test_data():
+    with open("data.json") as f:
+        return json.load(f)
+
+@pytest.mark.parametrize("username, password", get_test_data())
+def test_login(username, password):
+    assert username and password  # Example login test
+```
