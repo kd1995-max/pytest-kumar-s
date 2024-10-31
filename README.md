@@ -60,3 +60,44 @@ pytest <file-name>
 - `--ff` or `--failed-first`: Runs the failed tests first, then the rest.
 
 For further reference, explore the [Pytest cache documentation](https://docs.pytest.org/en/latest/cache.html).
+
+Here's an updated section for `README.md` to include details on assertions, test discovery, and handling exceptions with `pytest.raises`.
+
+---
+
+## Writing and Validating Tests
+
+### Assertions
+
+Assertions are essential for validating the outcomes of tests. Here are some guidelines:
+
+- Use operators like `==`, `!=`, `<=`, and `>=` for comparisons in assertions.
+- Assert a condition to be `True` with `assert 1` or `False` with `assert 0` (fails the test).
+- Use `assert in` to check if a value exists within a list, tuple, or string.
+- **Best Practice**: Aim to use only one `assert` per test for clarity.
+
+### Test Discovery
+
+Pytest automatically discovers tests:
+
+- Running `pytest` without arguments searches in the current directory and subdirectories.
+- Specifying files or directories (e.g., `pytest <filename>`) restricts discovery to those locations.
+- Ensure directories are recognized as Python packages by including an `__init__.py` file.
+
+### Handling Expected Exceptions
+
+For tests expected to raise exceptions, use `pytest.raises`:
+
+```python
+import pytest
+
+def test_divide_by_zero():
+    with pytest.raises(ZeroDivisionError):
+        1 / 0
+```
+
+In this case, the test will pass if the specified exception (`ZeroDivisionError`) is raised, which is useful for negative test cases.
+
+---
+
+This section explains how to structure assertions, discover tests, and handle exceptions, making it easier for others to understand and maintain the testing framework. Let me know if you’d like any additional modifications!
