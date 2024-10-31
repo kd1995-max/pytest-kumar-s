@@ -179,3 +179,74 @@ Use `pytest --help` to view all available options. Some useful ones include:
 - `XFAIL` (x): Expected failure, test ran and failed.
 - `XPASS` (X): Unexpectedly passed.
 - `ERROR` (E): An error occurred outside the test function.
+
+## Advanced Testing Techniques
+
+### Parameterized Tests
+
+Parameterized tests allow you to run the same test multiple times with different input values, which is ideal for data-driven testing.
+
+Example:
+```python
+import pytest
+
+@pytest.mark.parametrize("test_input, expected", [("5+5", 10), ("5-5", 0), ("7*8", 56)])
+def test_eval(test_input, expected):
+    assert eval(test_input) == expected
+```
+
+### Fixtures
+
+Fixtures provide a setup for tests by preparing the necessary data or state before each test. Common uses include setting up a database connection or initializing a web driver.
+
+- **Creating a fixture**:
+  ```python
+  import pytest
+
+  @pytest.fixture()
+  def sample_data():
+      return {"key": "value"}
+  ```
+
+- **Using a fixture**: Add it as a parameter to your test function:
+  ```python
+  def test_data(sample_data):
+      assert sample_data["key"] == "value"
+  ```
+
+- **Defining shared fixtures**: Place them in `conftest.py` to make them accessible across multiple test files without imports.
+
+### Setup and Teardown with Fixtures
+
+Use `yield` in fixtures to define teardown code, which runs after the test:
+```python
+@pytest.fixture()
+def resource_setup_teardown():
+    setup_resource = "resource setup"
+    yield setup_resource  # Teardown code runs after yield
+    print("Teardown resource")
+```
+
+### Fixture Scopes
+
+Fixture scope determines its lifespan:
+- **Function**: Default, runs once per test function.
+- **Class**: Runs once per test class.
+- **Module**: Runs once per module.
+- **Session**: Runs once per test session.
+
+### Parameterizing Fixtures
+
+You can parameterize fixtures to run tests with multiple sets of data:
+```python
+@pytest.fixture(params=[1, 2, 3])
+def number(request):
+    return request.param
+```
+
+### Tracing Fixtures
+
+To view fixture setup, run Pytest with `--setup-show`:
+```bash
+pytest --setup-show
+```
