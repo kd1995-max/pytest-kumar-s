@@ -93,3 +93,89 @@ def test_divide_by_zero():
 
 In this case, the test will pass if the specified exception (`ZeroDivisionError`) is raised, which is useful for negative test cases.
 
+
+## Managing Test Execution
+
+### Skipping Tests
+
+Skip tests that are not applicable or need conditional execution.
+
+- **Simple skip**: Skip a test unconditionally:
+  ```python
+  @pytest.mark.skip()
+  ```
+- **Conditional skip**: Skip based on a condition:
+  ```python
+  @pytest.mark.skipif(condition)
+  ```
+- **Skip entire module**: Skip all tests in a module with:
+  ```python
+  pytestmark = pytest.mark.skipif(condition)
+  ```
+
+### Markers for Test Grouping
+
+Use markers to categorize and selectively run tests. Common examples:
+
+- Mark a test with a specific label, like `sanity` or `uitest`:
+  ```python
+  @pytest.mark.sanity
+  ```
+- To run only tests marked as `sanity`:
+  ```bash
+  pytest -m sanity
+  ```
+
+Markers also support logical operators like `and`, `or`, and `not` for complex test selection:
+```bash
+pytest -m "sanity and uitest"
+```
+
+> **Note**: Define all custom markers in `pytest.ini` to avoid warnings.
+
+### Expecting Failures (`xfail`)
+
+Mark tests expected to fail, useful for known issues or unimplemented features:
+
+- Basic usage:
+  ```python
+  @pytest.mark.xfail
+  ```
+- Expect a failure based on a condition:
+  ```python
+  @pytest.mark.xfail(condition)
+  ```
+- Use `raises` for specific exceptions:
+  ```python
+  @pytest.mark.xfail(raises=IndexError)
+  ```
+
+When a test passes unexpectedly, `pytest` will show an `XPASS` result, otherwise `XFAIL` for expected failures.
+
+### Running Tests by Name
+
+Run tests based on partial or full name matching with the `-k` option:
+```bash
+pytest -k "test_name_part"
+```
+You can use `and`, `or`, and `not` in the expression for refined selection.
+
+### Common Command-Line Options
+
+Use `pytest --help` to view all available options. Some useful ones include:
+
+- `-m MARKEXPR`: Run tests matching a mark expression.
+- `-x` or `--exitfirst`: Stop after the first failure.
+- `--maxfail=num`: Stop after a specific number of failures.
+- `-q` or `--quiet`: Decrease verbosity.
+- `--tb=no`: Suppress traceback for errors.
+- `--collect-only`: Only collect tests without executing them.
+
+### Test Outcomes
+
+- `PASSED` (.): Test passed.
+- `FAILED` (F): Test failed.
+- `SKIPPED` (s): Test was skipped.
+- `XFAIL` (x): Expected failure, test ran and failed.
+- `XPASS` (X): Unexpectedly passed.
+- `ERROR` (E): An error occurred outside the test function.
