@@ -59,11 +59,6 @@ pytest <file-name>
 - `--lf` or `--last-failed`: Only reruns tests that failed last time.
 - `--ff` or `--failed-first`: Runs the failed tests first, then the rest.
 
-For further reference, explore the [Pytest cache documentation](https://docs.pytest.org/en/latest/cache.html).
-
-Here's an updated section for `README.md` to include details on assertions, test discovery, and handling exceptions with `pytest.raises`.
-
----
 
 ## Writing and Validating Tests
 
@@ -98,6 +93,3 @@ def test_divide_by_zero():
 
 In this case, the test will pass if the specified exception (`ZeroDivisionError`) is raised, which is useful for negative test cases.
 
----
-
-This section explains how to structure assertions, discover tests, and handle exceptions, making it easier for others to understand and maintain the testing framework. Let me know if you’d like any additional modifications!
