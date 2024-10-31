@@ -6,6 +6,7 @@ exceptiongroup==1.2.2
 idna==3.10
 iniconfig==2.0.0
 packaging==24.1
+pathlib==1.0.1
 pkg_resources==0.0.0
 pluggy==1.5.0
 py==1.11.0
