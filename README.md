@@ -427,3 +427,154 @@ def get_test_data():
 def test_login(username, password):
     assert username and password  # Example login test
 ```
+
+### BDD - Behavioral Driven Development (BDD)
+
+- BDD is used for writing test scenarios in a natural language that can be understood by analysts, product owners, and developers.
+- **Feature file** and **Scenario**:
+  - A feature file describes a feature and contains multiple scenarios.
+  - Each scenario outlines a specific behavior or flow to be tested.
+
+#### Example of a Login Test Scenario:
+- **Feature**: Login Test
+  - **Objective**: User must be able to log in successfully.
+- **Scenario**: Login
+  - Given the user is on the login page.
+  - When the user enters the correct email ID and password.
+  - And the user clicks the login button.
+  - Then the user is logged in to the application.
+  - And the user is able to see the home page.
+
+---
+
+### Pytest BDD: Key Terms and Rules
+
+- **pytest-bdd** is not a standalone framework; it requires `pytest`.
+- **Gherkin syntax**: Used in `.feature` files with keywords such as Given, When, Then, etc.
+  - Steps can be reused across multiple scenarios.
+- Rules:
+  - Only one feature per feature file is allowed.
+  - Multiple scenarios can be included within a single feature file.
+  - Test modules should start with `test_`.
+  - The project structure for pytest-bdd is flexible.
+  - Step definition module names don’t need to match feature file names.
+  - Scenarios must be explicitly declared in test modules.
+
+---
+
+### Gherkin Keywords
+
+- Gherkin keywords are essential for structuring feature files.
+- **Primary Keywords**:
+  - **Feature**: Defines the feature being tested.
+  - **Rule**: (as of Gherkin 6) Used to represent business rules.
+  - **Scenario** or **Example**: Describes a specific test scenario.
+  - **Given, When, Then, And, But**: Used for defining test steps.
+  - **Background**: Common setup steps for all scenarios in a feature.
+  - **Scenario Outline** or **Scenario Template**: Allows for parameterized tests.
+  - **Examples**: Provides example values for parameterized scenarios.
+ 
+### Step 1: Install pytest-bdd
+Make sure to install `pytest-bdd` if it’s not already installed:
+```bash
+pip install pytest-bdd
+```
+
+---
+
+### Step 2: Create the Feature File
+
+The feature file describes the behavior you want to test. Let's create a `login.feature` file in a `features` directory.
+
+```gherkin
+# features/login.feature
+
+Feature: Login Test
+  User must be able to log in successfully.
+
+  Scenario: Successful login
+    Given the user is on the login page
+    When the user enters a valid email and password
+    And clicks the login button
+    Then the user should be logged in
+    And sees the home page
+```
+
+### Step 3: Define the Step Definitions in Python
+
+The step definitions connect the Gherkin steps in the feature file to actual Python functions. Let's create a Python file `test_login.py` in a `tests` directory.
+
+```python
+# tests/test_login.py
+
+import pytest
+from pytest_bdd import scenarios, given, when, then
+
+# Link to the feature file
+scenarios('../features/login.feature')
+
+# Sample functions for simulating a login process
+class LoginPage:
+    def __init__(self):
+        self.is_logged_in = False
+
+    def enter_credentials(self, email, password):
+        # Assume we have valid credentials as email: "user@example.com", password: "password123"
+        if email == "user@example.com" and password == "password123":
+            self.is_logged_in = True
+
+    def click_login(self):
+        return self.is_logged_in
+
+# Fixtures
+@pytest.fixture
+def login_page():
+    return LoginPage()
+
+# Step Definitions
+@given("the user is on the login page")
+def user_on_login_page(login_page):
+    # Here, you could set up or navigate to the login page if using a browser automation tool
+    pass
+
+@when("the user enters a valid email and password")
+def user_enters_credentials(login_page):
+    login_page.enter_credentials(email="user@example.com", password="password123")
+
+@when("clicks the login button")
+def user_clicks_login(login_page):
+    assert login_page.click_login() is True, "Login failed"
+
+@then("the user should be logged in")
+def user_should_be_logged_in(login_page):
+    assert login_page.is_logged_in is True, "User is not logged in"
+
+@then("sees the home page")
+def user_sees_home_page():
+    # This could involve checking if the home page is displayed
+    # For simplicity, we'll just assume success if the login was successful
+    print("User sees the home page.")
+```
+
+### Step 4: Run the Test
+
+To execute the test, run the following command in your terminal:
+
+```bash
+pytest tests/test_login.py
+```
+
+---
+
+### Explanation of the Code
+
+1. **Feature File** (`login.feature`): Defines the scenario in Gherkin syntax, specifying each step in the login process.
+  
+2. **Step Definitions** (`test_login.py`):
+   - **`@given` decorator**: Marks the pre-condition (e.g., user on the login page).
+   - **`@when` decorator**: Describes the actions taken by the user (e.g., entering credentials, clicking login).
+   - **`@then` decorator**: Describes the expected outcome after the actions (e.g., user should be logged in).
+   
+3. **LoginPage class**: A simple class to simulate a login process.
+
+4. **Assertions**: Each step checks if the expected behavior matches the result.
